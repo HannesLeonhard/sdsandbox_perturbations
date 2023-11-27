@@ -62,7 +62,10 @@ namespace tk
             client = _client;
 
             if (client == null)
+            {
+                Debug.Log("Initial Client is null");
                 return;
+            }
 
             client.dispatchInMainThread = false; //too slow to wait.
             client.dispatcher.Register("control", new tk.Delegates.OnMsgRecv(OnControlsRecv));
@@ -74,12 +77,15 @@ namespace tk
             client.dispatcher.Register("regen_road", new tk.Delegates.OnMsgRecv(OnRegenRoad));
             client.dispatcher.Register("car_config", new tk.Delegates.OnMsgRecv(OnCarConfig));
             client.dispatcher.Register("cam_config", new tk.Delegates.OnMsgRecv(OnCamConfig));
+
+            Debug.Log("Finished Car Handler init");
         }
 
         public void Start()
         {
             SendCarLoaded();
             state = State.SendTelemetry;
+            Debug.Log("Started Car Handler");
         }
 
         public tk.JsonTcpClient GetClient()
@@ -126,6 +132,7 @@ namespace tk
 
             if (pm != null)
             {
+                json.AddField("sector", pm.path.iActiveSpan);
                 float cte = 0.0f;
                 if (pm.path.GetCrossTrackErr(tm.position, ref cte))
                 {
@@ -144,6 +151,7 @@ namespace tk
 
         void SendCarLoaded()
         {
+            Debug.Log("sendin car loaded");
             if (client == null)
                 return;
 
