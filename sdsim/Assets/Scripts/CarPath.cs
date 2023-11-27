@@ -36,6 +36,11 @@ public class CarPath
 		return null;
 	}
 
+	public int getMaxWayPoints()
+	{
+		return nodes.Count - 1;
+	}
+
 	public void SmoothPath(float factor = 0.5f)
 	{
 		LineSeg3d.SegResult segRes = new LineSeg3d.SegResult();

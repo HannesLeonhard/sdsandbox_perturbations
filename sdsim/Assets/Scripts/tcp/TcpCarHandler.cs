@@ -9,7 +9,8 @@ using UnityStandardAssets.ImageEffects;
 namespace tk
 {
 
-    public class TcpCarHandler : MonoBehaviour {
+    public class TcpCarHandler : MonoBehaviour
+    {
 
         public GameObject carObj;
         public ICar car;
@@ -60,7 +61,7 @@ namespace tk
         {
             client = _client;
 
-            if(client == null)
+            if (client == null)
                 return;
 
             client.dispatchInMainThread = false; //too slow to wait.
@@ -88,7 +89,7 @@ namespace tk
 
         public void OnDestroy()
         {
-            if(client)
+            if (client)
                 client.dispatcher.Reset();
         }
 
@@ -126,7 +127,7 @@ namespace tk
             if (pm != null)
             {
                 float cte = 0.0f;
-                if(pm.path.GetCrossTrackErr(tm.position, ref cte))
+                if (pm.path.GetCrossTrackErr(tm.position, ref cte))
                 {
                     json.AddField("cte", cte);
                 }
@@ -135,19 +136,20 @@ namespace tk
                     pm.path.ResetActiveSpan();
                     json.AddField("cte", 0.0f);
                 }
+                json.AddField("maxSector", pm.path.getMaxWayPoints());
             }
 
-            client.SendMsg( json );
+            client.SendMsg(json);
         }
 
         void SendCarLoaded()
         {
-            if(client == null)
+            if (client == null)
                 return;
 
             JSONObject json = new JSONObject(JSONObject.Type.OBJECT);
             json.AddField("msg_type", "car_loaded");
-            client.SendMsg( json );
+            client.SendMsg(json);
             Debug.Log("car loaded.");
         }
 
@@ -163,7 +165,7 @@ namespace tk
                 car.RequestThrottle(ai_throttle);
                 car.RequestFootBrake(ai_brake);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Debug.Log(e.ToString());
             }
@@ -198,7 +200,7 @@ namespace tk
         {
             CarSpawner spawner = GameObject.FindObjectOfType<CarSpawner>();
 
-            if(spawner != null)
+            if (spawner != null)
             {
                 spawner.Spawn(client);
             }
@@ -224,22 +226,41 @@ namespace tk
 
         IEnumerator RegenRoad(int road_style, int rand_seed, float turn_increment)
         {
-            TrainingManager train_mgr = GameObject.FindObjectOfType<TrainingManager>();
-            PathManager path_mgr = GameObject.FindObjectOfType<PathManager>();
-
-            if(train_mgr != null)
+            // TrainingManager train_mgr = GameObject.FindObjectOfType<TrainingManager>();
+            // PathManager path_mgr = GameObject.FindObjectOfType<PathManager>();
+            Debug.Log("Calling Regen Road");
+            if (pm != null)
             {
-                if (turn_increment != 0.0 && path_mgr != null)
+                Debug.Log("Train manager is not null");
+                if (turn_increment != 0.0 && pm != null)
                 {
-                    path_mgr.turnInc = turn_increment;
+                    pm.turnInc = turn_increment;
                 }
 
                 UnityEngine.Random.InitState(rand_seed);
-                train_mgr.SetRoadStyle(road_style);
-                train_mgr.OnMenuRegenTrack();
+                RoadGen();
+                // train_mgr.SetRoadStyle(road_style);
+                // train_mgr.OnMenuRegenTrack();
+            }
+            else
+            {
+                Debug.Log("pm is null");
             }
 
             yield return null;
+        }
+
+        void RoadGen()
+        {
+            Debug.Log("We start a new run in tcp client");
+            car.RestorePosRot();
+            pm.DestroyRoad();
+            // SwapRoadToNewTextureVariation();
+            pm.InitNewRoad();
+            pm.path.ResetActiveSpan();
+            // StartDriving();
+            // RepositionOverheadCamera();
+            car.RequestFootBrake(1);
         }
 
         void OnCarConfig(JSONObject json)
@@ -253,18 +274,18 @@ namespace tk
             string car_name = json.GetField("car_name").str;
             int font_size = 100;
 
-            if(json.GetField("font_size") != null)
+            if (json.GetField("font_size") != null)
                 font_size = int.Parse(json.GetField("font_size").str);
 
-            if(carObj != null)
+            if (carObj != null)
                 UnityMainThreadDispatcher.Instance().Enqueue(SetCarConfig(body_style, body_r, body_g, body_b, car_name, font_size));
         }
 
         IEnumerator SetCarConfig(string body_style, int body_r, int body_g, int body_b, string car_name, int font_size)
         {
             CarConfig conf = carObj.GetComponent<CarConfig>();
-            
-            if(conf)
+
+            if (conf)
             {
                 conf.SetStyle(body_style, body_r, body_g, body_b, car_name, font_size);
             }
@@ -274,34 +295,34 @@ namespace tk
 
         void OnCamConfig(JSONObject json)
         {
-            float fov       = float.Parse(json.GetField("fov").str, CultureInfo.InvariantCulture.NumberFormat);
-            float offset_x  = float.Parse(json.GetField("offset_x").str, CultureInfo.InvariantCulture.NumberFormat);
-            float offset_y  = float.Parse(json.GetField("offset_y").str, CultureInfo.InvariantCulture.NumberFormat);
-            float offset_z  = float.Parse(json.GetField("offset_z").str, CultureInfo.InvariantCulture.NumberFormat);
-            float rot_x     = float.Parse(json.GetField("rot_x").str, CultureInfo.InvariantCulture.NumberFormat);
+            float fov = float.Parse(json.GetField("fov").str, CultureInfo.InvariantCulture.NumberFormat);
+            float offset_x = float.Parse(json.GetField("offset_x").str, CultureInfo.InvariantCulture.NumberFormat);
+            float offset_y = float.Parse(json.GetField("offset_y").str, CultureInfo.InvariantCulture.NumberFormat);
+            float offset_z = float.Parse(json.GetField("offset_z").str, CultureInfo.InvariantCulture.NumberFormat);
+            float rot_x = float.Parse(json.GetField("rot_x").str, CultureInfo.InvariantCulture.NumberFormat);
             float fish_eye_x = float.Parse(json.GetField("fish_eye_x").str, CultureInfo.InvariantCulture.NumberFormat);
             float fish_eye_y = float.Parse(json.GetField("fish_eye_y").str, CultureInfo.InvariantCulture.NumberFormat);
-            int img_w       = int.Parse(json.GetField("img_w").str);
-            int img_h       = int.Parse(json.GetField("img_h").str);
-            int img_d       = int.Parse(json.GetField("img_d").str);
-            string img_enc  = json.GetField("img_enc").str;
-            
-            if(carObj != null)
+            int img_w = int.Parse(json.GetField("img_w").str);
+            int img_h = int.Parse(json.GetField("img_h").str);
+            int img_d = int.Parse(json.GetField("img_d").str);
+            string img_enc = json.GetField("img_enc").str;
+
+            if (carObj != null)
                 UnityMainThreadDispatcher.Instance().Enqueue(SetCamConfig(fov, offset_x, offset_y, offset_z, rot_x, img_w, img_h, img_d, img_enc, fish_eye_x, fish_eye_y));
         }
 
-        IEnumerator SetCamConfig(float fov, float offset_x, float offset_y, float offset_z, float rot_x, 
+        IEnumerator SetCamConfig(float fov, float offset_x, float offset_y, float offset_z, float rot_x,
             int img_w, int img_h, int img_d, string img_enc, float fish_eye_x, float fish_eye_y)
         {
             CameraSensor camSensor = carObj.transform.GetComponentInChildren<CameraSensor>();
-            
-            if(camSensor)
+
+            if (camSensor)
             {
                 camSensor.SetConfig(fov, offset_x, offset_y, offset_z, rot_x, img_w, img_h, img_d, img_enc);
 
                 Fisheye fe = camSensor.gameObject.GetComponent<Fisheye>();
 
-                if(fe != null && ( fish_eye_x != 0.0f || fish_eye_y != 0.0f) )
+                if (fe != null && (fish_eye_x != 0.0f || fish_eye_y != 0.0f))
                 {
                     fe.enabled = true;
                     fe.strengthX = fish_eye_x;
@@ -319,7 +340,7 @@ namespace tk
 
             Debug.Log("got settings");
 
-            if(step_mode == "synchronous")
+            if (step_mode == "synchronous")
             {
                 Debug.Log("setting mode to synchronous");
                 asynchronous = false;
@@ -339,15 +360,15 @@ namespace tk
         }
 
         // Update is called once per frame
-        void Update ()
+        void Update()
         {
-            if(bExitScene)
+            if (bExitScene)
             {
                 bExitScene = false;
                 ExitScene();
             }
-                
-            if(state == State.SendTelemetry)
+
+            if (state == State.SendTelemetry)
             {
                 if (bResetCar)
                 {
@@ -365,7 +386,7 @@ namespace tk
                     SendTelemetry();
                 }
 
-                if(ai_text != null)
+                if (ai_text != null)
                     ai_text.text = string.Format("NN: {0} : {1}", ai_steering, ai_throttle);
 
             }
