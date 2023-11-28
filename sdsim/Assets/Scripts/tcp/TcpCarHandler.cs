@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using System.Globalization;
 using UnityEngine.SceneManagement;
 using UnityStandardAssets.ImageEffects;
+using System.Collections.Generic;
 
 namespace tk
 {
@@ -225,17 +226,29 @@ namespace tk
             int road_style = int.Parse(json.GetField("road_style").str);
             int rand_seed = int.Parse(json.GetField("rand_seed").str);
             float turn_increment = float.Parse(json.GetField("turn_increment").str, CultureInfo.InvariantCulture);
-
-            JSONObject wayPointsJson = json["wayPoints"];
-            List<string> wayPointsList = new List<string>(); // Using a list to handle dynamic size
-
-            foreach (JSONObject point in wayPointsJson.list)
+            string wayPointsString = json.GetField("wayPoints").str;
+            if (json.HasField("wayPoints"))
             {
-                wayPointsList.Add(point.str);
+                Debug.Log("waypoints are " + json["wayPoints"]);
             }
-            Debug.Log("Received Waypoints ", wayPointsList);
-            string[] wayPoints = wayPointsList.ToArray();
+            else
+            {
+                Debug.Log("Way Points not present");
+            }
+            string trimmed = wayPointsString.Trim(new char[] { '[', ']' }).Replace("\'", "");
+            Debug.Log("Trimmed is " + trimmed);
+            string[] wayPoints = trimmed.Split(new string[] { ", " }, System.StringSplitOptions.None);
 
+            if (wayPoints != null)
+            {
+                foreach (string point in wayPoints)
+                {
+                    Debug.Log("point " + point);
+                }
+
+            } else {
+                Debug.Log("way points are null");
+            }
             //We get this callback in a worker thread, but need to make mainthread calls.
             //so use this handy utility dispatcher from
             // https://github.com/PimDeWitte/UnityMainThreadDispatcher

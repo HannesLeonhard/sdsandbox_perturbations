@@ -60,7 +60,7 @@ public class PathManager : MonoBehaviour
 		InitNewRoad();
 	}
 
-	public void InitNewRoad(string[] wayPoints = [])
+	public void InitNewRoad(string[] wayPoints = null)
 	{
 		// Creates a new road
 		// If we were given a scripted path in the form of a list of strings
@@ -193,7 +193,7 @@ public class PathManager : MonoBehaviour
 
 	}
 
-	void MakeScriptedPath(string[] waypoints = [])
+	void MakeScriptedPath(string[] waypoints = null)
 	{
 		TrackScript script = new TrackScript();
 
@@ -201,11 +201,11 @@ public class PathManager : MonoBehaviour
 		// If we were given a path we create it, otherwise we read the path
 		if (waypoints != null && waypoints.Length > 0)
 		{
-			flag = script.CreatePath(waypoints)
+			flag = script.CreatePath(waypoints);
 		}
 		else
 		{
-			flag = script.Read(pathToLoad)
+			flag = script.Read(pathToLoad);
 		}
 
 		if (flag)
