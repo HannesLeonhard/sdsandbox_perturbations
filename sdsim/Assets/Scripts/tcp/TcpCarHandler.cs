@@ -227,28 +227,10 @@ namespace tk
             int rand_seed = int.Parse(json.GetField("rand_seed").str);
             float turn_increment = float.Parse(json.GetField("turn_increment").str, CultureInfo.InvariantCulture);
             string wayPointsString = json.GetField("wayPoints").str;
-            if (json.HasField("wayPoints"))
-            {
-                Debug.Log("waypoints are " + json["wayPoints"]);
-            }
-            else
-            {
-                Debug.Log("Way Points not present");
-            }
+
             string trimmed = wayPointsString.Trim(new char[] { '[', ']' }).Replace("\'", "");
-            Debug.Log("Trimmed is " + trimmed);
             string[] wayPoints = trimmed.Split(new string[] { ", " }, System.StringSplitOptions.None);
 
-            if (wayPoints != null)
-            {
-                foreach (string point in wayPoints)
-                {
-                    Debug.Log("point " + point);
-                }
-
-            } else {
-                Debug.Log("way points are null");
-            }
             //We get this callback in a worker thread, but need to make mainthread calls.
             //so use this handy utility dispatcher from
             // https://github.com/PimDeWitte/UnityMainThreadDispatcher
