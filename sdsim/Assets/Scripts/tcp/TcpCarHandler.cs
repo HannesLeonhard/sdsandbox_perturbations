@@ -226,13 +226,23 @@ namespace tk
             int rand_seed = int.Parse(json.GetField("rand_seed").str);
             float turn_increment = float.Parse(json.GetField("turn_increment").str, CultureInfo.InvariantCulture);
 
+            JSONObject wayPointsJson = json["wayPoints"];
+            List<string> wayPointsList = new List<string>(); // Using a list to handle dynamic size
+
+            foreach (JSONObject point in wayPointsJson.list)
+            {
+                wayPointsList.Add(point.str);
+            }
+            Debug.Log("Received Waypoints ", wayPointsList);
+            string[] wayPoints = wayPointsList.ToArray();
+
             //We get this callback in a worker thread, but need to make mainthread calls.
             //so use this handy utility dispatcher from
             // https://github.com/PimDeWitte/UnityMainThreadDispatcher
-            UnityMainThreadDispatcher.Instance().Enqueue(RegenRoad(road_style, rand_seed, turn_increment));
+            UnityMainThreadDispatcher.Instance().Enqueue(RegenRoad(road_style, rand_seed, turn_increment, wayPoints));
         }
 
-        IEnumerator RegenRoad(int road_style, int rand_seed, float turn_increment)
+        IEnumerator RegenRoad(int road_style, int rand_seed, float turn_increment, string[] wayPoints)
         {
             // TrainingManager train_mgr = GameObject.FindObjectOfType<TrainingManager>();
             // PathManager path_mgr = GameObject.FindObjectOfType<PathManager>();
@@ -246,7 +256,7 @@ namespace tk
                 }
 
                 UnityEngine.Random.InitState(rand_seed);
-                RoadGen();
+                RoadGen(wayPoints);
                 // train_mgr.SetRoadStyle(road_style);
                 // train_mgr.OnMenuRegenTrack();
             }
@@ -258,13 +268,13 @@ namespace tk
             yield return null;
         }
 
-        void RoadGen()
+        void RoadGen(string[] wayPoints)
         {
             Debug.Log("We start a new run in tcp client");
             car.RestorePosRot();
             pm.DestroyRoad();
             // SwapRoadToNewTextureVariation();
-            pm.InitNewRoad();
+            pm.InitNewRoad(wayPoints);
             pm.path.ResetActiveSpan();
             // StartDriving();
             // RepositionOverheadCamera();

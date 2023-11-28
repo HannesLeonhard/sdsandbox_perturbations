@@ -2,7 +2,8 @@
 using System.Collections;
 using System.Globalization;
 
-public class PathManager : MonoBehaviour {
+public class PathManager : MonoBehaviour
+{
 
 	public CarPath path;
 
@@ -16,7 +17,7 @@ public class PathManager : MonoBehaviour {
 
 	public int numSpans;
 
-    public float turnInc;
+	public float turnInc;
 
 	public bool sameRandomPath = true;
 
@@ -36,7 +37,7 @@ public class PathManager : MonoBehaviour {
 
 	public bool doShowPath = false;
 
-    public string pathToLoad = "none";
+	public string pathToLoad = "none";
 
 	public RoadBuilder roadBuilder;
 	public RoadBuilder semanticSegRoadBuilder;
@@ -47,7 +48,7 @@ public class PathManager : MonoBehaviour {
 
 	public int markerEveryN = 2;
 
-	void Awake () 
+	void Awake()
 	{
 		numSpans = 200;
 		spanDist = 2f;
@@ -59,9 +60,16 @@ public class PathManager : MonoBehaviour {
 		InitNewRoad();
 	}
 
-	public void InitNewRoad()
+	public void InitNewRoad(string[] wayPoints = [])
 	{
-		if(doMakeRandomPath)
+		// Creates a new road
+		// If we were given a scripted path in the form of a list of strings
+		// we use this
+		if (wayPoints != null && wayPoints.Length > 0)
+		{
+			MakeScriptedPath(wayPoints);
+		}
+		else if (doMakeRandomPath)
 		{
 			MakeRandomPath();
 		}
@@ -69,43 +77,43 @@ public class PathManager : MonoBehaviour {
 		{
 			MakeScriptedPath();
 		}
-		else if(doLoadPointPath)
+		else if (doLoadPointPath)
 		{
 			MakePointPath();
 		}
 
-		if(smoothPathIter > 0)
+		if (smoothPathIter > 0)
 			SmoothPath();
 
 		//Should we build a road mesh along the path?
-		if(doBuildRoad && roadBuilder != null)
+		if (doBuildRoad && roadBuilder != null)
 			roadBuilder.InitRoad(path);
 
-		if(doBuildRoad && semanticSegRoadBuilder != null)
+		if (doBuildRoad && semanticSegRoadBuilder != null)
 			semanticSegRoadBuilder.InitRoad(path);
 
-		if(laneChTrainer != null && doChangeLanes)
+		if (laneChTrainer != null && doChangeLanes)
 		{
 			laneChTrainer.ModifyPath(ref path);
 		}
 
-		if(locationMarkerPrefab != null && path != null)
+		if (locationMarkerPrefab != null && path != null)
 		{
 			int iLocId = 0;
-			for(int iN = 0; iN < path.nodes.Count; iN += markerEveryN)
+			for (int iN = 0; iN < path.nodes.Count; iN += markerEveryN)
 			{
 				Vector3 np = path.nodes[iN].pos;
 				GameObject go = Instantiate(locationMarkerPrefab, np, Quaternion.identity) as GameObject;
 				go.transform.parent = this.transform;
 				go.GetComponent<LocationMarker>().id = iLocId;
 				iLocId++;
-                go.tag = "pathNode";
+				go.tag = "pathNode";
 			}
 		}
 
-		if(doShowPath && path != null)
+		if (doShowPath && path != null)
 		{
-			for(int iN = 0; iN < path.nodes.Count; iN++)
+			for (int iN = 0; iN < path.nodes.Count; iN++)
 			{
 				Vector3 np = path.nodes[iN].pos;
 				GameObject go = Instantiate(prefab, np, Quaternion.identity) as GameObject;
@@ -119,31 +127,31 @@ public class PathManager : MonoBehaviour {
 	{
 		GameObject[] prev = GameObject.FindGameObjectsWithTag("pathNode");
 
-		foreach(GameObject g in prev)
+		foreach (GameObject g in prev)
 			Destroy(g);
 
-		if(roadBuilder != null)
+		if (roadBuilder != null)
 			roadBuilder.DestroyRoad();
 	}
 
-    public Vector3 GetPathStart()
-    {
-        return startPos.position;
-    }
+	public Vector3 GetPathStart()
+	{
+		return startPos.position;
+	}
 
-    public Vector3 GetPathEnd()
-    {
-        int iN = path.nodes.Count - 1;
+	public Vector3 GetPathEnd()
+	{
+		int iN = path.nodes.Count - 1;
 
-        if(iN < 0)
-            return GetPathStart();
+		if (iN < 0)
+			return GetPathStart();
 
-        return path.nodes[iN].pos;
-    }
+		return path.nodes[iN].pos;
+	}
 
 	void SmoothPath()
 	{
-		while(smoothPathIter > 0)
+		while (smoothPathIter > 0)
 		{
 			path.SmoothPath();
 			smoothPathIter--;
@@ -156,7 +164,7 @@ public class PathManager : MonoBehaviour {
 
 		TextAsset bindata = Resources.Load(filename) as TextAsset;
 
-		if(bindata == null)
+		if (bindata == null)
 			return;
 
 		string[] lines = bindata.text.Split('\n');
@@ -169,7 +177,7 @@ public class PathManager : MonoBehaviour {
 
 		float offsetY = -0.1f;
 
-		foreach(string line in lines)
+		foreach (string line in lines)
 		{
 			string[] tokens = line.Split(',');
 
@@ -182,14 +190,25 @@ public class PathManager : MonoBehaviour {
 			p.pos = np;
 			path.nodes.Add(p);
 		}
-			
+
 	}
 
-	void MakeScriptedPath()
+	void MakeScriptedPath(string[] waypoints = [])
 	{
 		TrackScript script = new TrackScript();
 
-		if(script.Read(pathToLoad))
+		bool flag = false;
+		// If we were given a path we create it, otherwise we read the path
+		if (waypoints != null && waypoints.Length > 0)
+		{
+			flag = script.CreatePath(waypoints)
+		}
+		else
+		{
+			flag = script.Read(pathToLoad)
+		}
+
+		if (flag)
 		{
 			path = new CarPath();
 			TrackParams tparams = new TrackParams();
@@ -207,13 +226,13 @@ public class PathManager : MonoBehaviour {
 			span.z = spanDist;
 			float turnVal = 10.0f;
 
-			foreach(TrackScriptElem se in script.track)
+			foreach (TrackScriptElem se in script.track)
 			{
-				if(se.state == TrackParams.State.AngleDY)
+				if (se.state == TrackParams.State.AngleDY)
 				{
 					turnVal = se.value;
 				}
-				else if(se.state == TrackParams.State.CurveY)
+				else if (se.state == TrackParams.State.CurveY)
 				{
 					turn = 0.0f;
 					dY = se.value * turnVal;
@@ -224,7 +243,7 @@ public class PathManager : MonoBehaviour {
 					turn = 0.0f;
 				}
 
-				for(int i = 0; i < se.numToSet; i++)
+				for (int i = 0; i < se.numToSet; i++)
 				{
 
 					Vector3 np = s;
@@ -239,7 +258,7 @@ public class PathManager : MonoBehaviour {
 					span *= spanDist;
 					s = s + span;
 				}
-					
+
 			}
 		}
 	}
@@ -256,7 +275,7 @@ public class PathManager : MonoBehaviour {
 		span.y = 0f;
 		span.z = spanDist;
 
-		for(int iS = 0; iS < numSpans; iS++)
+		for (int iS = 0; iS < numSpans; iS++)
 		{
 			Vector3 np = s;
 			PathNode p = new PathNode();
@@ -270,7 +289,7 @@ public class PathManager : MonoBehaviour {
 			Quaternion rot = Quaternion.Euler(0.0f, turn, 0f);
 			span = rot * span.normalized;
 
-			if(SegmentCrossesPath( np + (span.normalized * 100.0f), 90.0f ))
+			if (SegmentCrossesPath(np + (span.normalized * 100.0f), 90.0f))
 			{
 				//turn in the opposite direction if we think we are going to run over the path
 				turn *= -0.5f;
@@ -286,11 +305,11 @@ public class PathManager : MonoBehaviour {
 
 	public bool SegmentCrossesPath(Vector3 posA, float rad)
 	{
-		foreach(PathNode pn in path.nodes)
+		foreach (PathNode pn in path.nodes)
 		{
 			float d = (posA - pn.pos).magnitude;
 
-			if(d < rad)
+			if (d < rad)
 				return true;
 		}
 
@@ -307,7 +326,7 @@ public class PathManager : MonoBehaviour {
 
 		DestroyRoad();
 
-		foreach(PathNode pn in path.nodes)
+		foreach (PathNode pn in path.nodes)
 		{
 			GameObject go = Instantiate(prefab, pn.pos, Quaternion.identity) as GameObject;
 			go.tag = "pathNode";

@@ -51,7 +51,7 @@ public class TrackScript
 
     public void Build(TrackScriptElem el)
     {
-        if(track.Count == 0)
+        if (track.Count == 0)
         {
             track.Add(el);
         }
@@ -59,7 +59,7 @@ public class TrackScript
         {
             TrackScriptElem lastElem = track[track.Count - 1];
 
-            if(lastElem.state == el.state && lastElem.value == el.value)
+            if (lastElem.state == el.state && lastElem.value == el.value)
             {
                 lastElem.numToSet += 1;
             }
@@ -79,20 +79,11 @@ public class TrackScript
         return true;
     }
 
-    public bool Read(string filename)
+    public bool CreatePath(string[] lines)
     {
         track = new List<TrackScriptElem>();
-
-        Debug.Log("loading: " + filename);
-
-        TextAsset bindata = Resources.Load(filename) as TextAsset;
-
-		if(bindata == null)
-			return false;
-
-        string[] lines = bindata.text.Split('\n');
-
-        foreach(string line in lines)
+        // creates a track from a given array of strings
+        foreach (string line in lines)
         {
             string[] tokens = line.Split(' ');
 
@@ -113,7 +104,7 @@ public class TrackScript
                 tse.value = 1f;
                 tse.numToSet = int.Parse(args);
             }
-            else if(command == "S")
+            else if (command == "S")
             {
                 tse.state = TrackParams.State.Straight;
                 tse.value = 1f;
@@ -212,6 +203,23 @@ public class TrackScript
             track.Add(tse);
         }
 
-		return track.Count > 0;
+        return track.Count > 0;
+    }
+
+    public bool Read(string filename)
+    {
+        // reads list of strings from a filename 
+        // and creates a path from the array of strings
+        Debug.Log("loading: " + filename);
+
+        TextAsset bindata = Resources.Load(filename) as TextAsset;
+
+        if (bindata == null)
+            return false;
+
+        string[] lines = bindata.text.Split('\n');
+
+        // create a path from the lines
+        return CreatePath(lines);
     }
 }
