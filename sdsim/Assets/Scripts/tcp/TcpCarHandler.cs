@@ -225,7 +225,7 @@ namespace tk
             float turn_increment = 0;
             string wayPointsString = json.GetField("wayPoints").str;
 
-            string[] wayPoints = new List<string>();
+            string[] wayPoints = new string[0];
             if (!string.IsNullOrEmpty(wayPointsString))
             {
                 wayPoints = wayPointsString.Split("@");

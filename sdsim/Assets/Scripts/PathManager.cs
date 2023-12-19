@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Globalization;
+using System.Collections.Generic;
 
 public class PathManager : MonoBehaviour
 {
@@ -160,7 +161,7 @@ public class PathManager : MonoBehaviour
 
 	void MakePointPath(string[] waypoints = null)
 	{
-		string[] lines = new List<string>();
+		string[] lines = new string[0];
 		// If we do not have params fetch a scripted path
 		if (waypoints != null && waypoints.Length > 0)
 		{
