@@ -67,7 +67,7 @@ public class PathManager : MonoBehaviour
 		// we use this
 		if (wayPoints != null && wayPoints.Length > 0)
 		{
-			MakeScriptedPath(wayPoints);
+			MakePointPath(wayPoints);
 		}
 		else if (doMakeRandomPath)
 		{
@@ -158,16 +158,25 @@ public class PathManager : MonoBehaviour
 		}
 	}
 
-	void MakePointPath()
+	void MakePointPath(string[] waypoints = null)
 	{
-		string filename = pathToLoad;
+		string[] lines = new List<string>();
+		// If we do not have params fetch a scripted path
+		if (waypoints != null && waypoints.Length > 0)
+		{
+			lines = waypoints;
+		}
+		else
+		{
+			string filename = pathToLoad;
 
-		TextAsset bindata = Resources.Load(filename) as TextAsset;
+			TextAsset bindata = Resources.Load(filename) as TextAsset;
 
-		if (bindata == null)
-			return;
+			if (bindata == null)
+				return;
 
-		string[] lines = bindata.text.Split('\n');
+			lines = bindata.text.Split('\n');
+		}
 
 		Debug.Log(string.Format("found {0} path points. to load", lines.Length));
 

@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 using UnityStandardAssets.ImageEffects;
 using System.Collections.Generic;
 
+
 namespace tk
 {
 
@@ -221,23 +222,23 @@ namespace tk
         {
             //This causes the track to be regenerated with the given settings.
             //This only works in scenes that have random track generation enabled.
-            //For now that is only in scene road_generator.
-            //An index into our track options. 5 in scene RoadGenerator.
-            int road_style = int.Parse(json.GetField("road_style").str);
-            int rand_seed = int.Parse(json.GetField("rand_seed").str);
-            float turn_increment = float.Parse(json.GetField("turn_increment").str, CultureInfo.InvariantCulture);
+            float turn_increment = 0;
             string wayPointsString = json.GetField("wayPoints").str;
 
-            string trimmed = wayPointsString.Trim(new char[] { '[', ']' }).Replace("\'", "");
-            string[] wayPoints = trimmed.Split(new string[] { ", " }, System.StringSplitOptions.None);
+            string[] wayPoints = new List<string>();
+            if (!string.IsNullOrEmpty(wayPointsString))
+            {
+                wayPoints = wayPointsString.Split("@");
+            }
+
 
             //We get this callback in a worker thread, but need to make mainthread calls.
             //so use this handy utility dispatcher from
             // https://github.com/PimDeWitte/UnityMainThreadDispatcher
-            UnityMainThreadDispatcher.Instance().Enqueue(RegenRoad(road_style, rand_seed, turn_increment, wayPoints));
+            UnityMainThreadDispatcher.Instance().Enqueue(RegenRoad(turn_increment, wayPoints));
         }
 
-        IEnumerator RegenRoad(int road_style, int rand_seed, float turn_increment, string[] wayPoints)
+        IEnumerator RegenRoad(float turn_increment, string[] wayPoints)
         {
             // TrainingManager train_mgr = GameObject.FindObjectOfType<TrainingManager>();
             // PathManager path_mgr = GameObject.FindObjectOfType<PathManager>();
@@ -250,7 +251,6 @@ namespace tk
                     pm.turnInc = turn_increment;
                 }
 
-                UnityEngine.Random.InitState(rand_seed);
                 RoadGen(wayPoints);
                 // train_mgr.SetRoadStyle(road_style);
                 // train_mgr.OnMenuRegenTrack();
@@ -268,11 +268,10 @@ namespace tk
             Debug.Log("We start a new run in tcp client");
             car.RestorePosRot();
             pm.DestroyRoad();
-            // SwapRoadToNewTextureVariation();
+
             pm.InitNewRoad(wayPoints);
             pm.path.ResetActiveSpan();
-            // StartDriving();
-            // RepositionOverheadCamera();
+
             car.RequestFootBrake(1);
         }
 
@@ -400,7 +399,7 @@ namespace tk
                 }
 
                 if (ai_text != null)
-                    ai_text.text = string.Format("NN: {0} : {1}", ai_steering, ai_throttle);
+                    ai_text.text = string.Format("NN: steering->{0} : throttle->{1}", ai_steering, ai_throttle);
 
             }
         }
