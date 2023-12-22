@@ -79,7 +79,7 @@ namespace tk
             client.dispatcher.Register("regen_road", new tk.Delegates.OnMsgRecv(OnRegenRoad));
             client.dispatcher.Register("car_config", new tk.Delegates.OnMsgRecv(OnCarConfig));
             client.dispatcher.Register("cam_config", new tk.Delegates.OnMsgRecv(OnCamConfig));
-
+            
             Debug.Log("Finished Car Handler init");
         }
 
@@ -267,9 +267,12 @@ namespace tk
         {
             Debug.Log("We start a new run in tcp client");
             car.RestorePosRot();
-            pm.DestroyRoad();
-
-            pm.InitNewRoad(wayPoints);
+            if (wayPoints.Length > 1)
+            {
+                Debug.Log("We create a new road");
+                pm.DestroyRoad();
+                pm.InitNewRoad(wayPoints);
+            }
             pm.path.ResetActiveSpan();
 
             car.RequestFootBrake(1);

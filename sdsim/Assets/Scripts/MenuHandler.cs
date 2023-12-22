@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityStandardAssets.Vehicles.Car;
 
-public class MenuHandler : MonoBehaviour {
+public class MenuHandler : MonoBehaviour
+{
 
     public GameObject PIDContoller;
     public GameObject Logger;
@@ -35,6 +36,7 @@ public class MenuHandler : MonoBehaviour {
         menuPanel.SetActive(true);
         stopPanel.SetActive(false);
         exitPanel.SetActive(true);
+
     }
     static public GameObject getChildGameObject(GameObject fromGameObject, string withName)
     {
@@ -47,58 +49,59 @@ public class MenuHandler : MonoBehaviour {
     }
 
     public void OnPidGenerateTrainingData()
-	{
-        if(Logger != null)
-		    Logger.SetActive(true);
-        
-		if(PIDContoller != null)
-			PIDContoller.SetActive(true);
+    {
+        if (Logger != null)
+            Logger.SetActive(true);
 
-		if(carJSControl != null)
-			carJSControl.SetActive(false);
+        if (PIDContoller != null)
+            PIDContoller.SetActive(true);
 
-		if(PIDControls != null)
-			PIDControls.SetActive(true);
-	
-		menuPanel.SetActive(false);
+        if (carJSControl != null)
+            carJSControl.SetActive(false);
+
+        if (PIDControls != null)
+            PIDControls.SetActive(true);
+
+        menuPanel.SetActive(false);
         stopPanel.SetActive(true);
         exitPanel.SetActive(false);
     }
 
-	public void OnManualGenerateTrainingData()
-	{
-		if(Logger != null)
-		    Logger.SetActive(true);
-        
-		if(PIDContoller != null)
-			PIDContoller.SetActive(false);
+    public void OnManualGenerateTrainingData()
+    {
+        if (Logger != null)
+            Logger.SetActive(true);
 
-		if(carJSControl != null)
-			carJSControl.SetActive(true);
+        if (PIDContoller != null)
+            PIDContoller.SetActive(false);
 
-		if(PIDControls != null)
-			PIDControls.SetActive(false);
-	
-		menuPanel.SetActive(false);
+        if (carJSControl != null)
+            carJSControl.SetActive(true);
+
+        if (PIDControls != null)
+            PIDControls.SetActive(false);
+
+        menuPanel.SetActive(false);
         stopPanel.SetActive(true);
         exitPanel.SetActive(false);
     }
 
-	public void OnUseNNNetworkSteering()
-	{
-        if(Logger != null)
-		    Logger.SetActive(true);
+    public void OnUseNNNetworkSteering()
+    {
+        Debug.Log("OnUseNNNetworkSteerinf");
+        if (Logger != null)
+            Logger.SetActive(true);
 
-		if(carJSControl != null)
-			carJSControl.SetActive(false);
+        if (carJSControl != null)
+            carJSControl.SetActive(false);
 
-		if(PIDControls != null)
-			PIDControls.SetActive(false);
-		
-		if(NetworkSteering != null)    
+        if (PIDControls != null)
+            PIDControls.SetActive(false);
+
+        if (NetworkSteering != null)
             NetworkSteering.SetActive(true);
 
-		menuPanel.SetActive(false);
+        menuPanel.SetActive(false);
         stopPanel.SetActive(true);
         exitPanel.SetActive(false);
 
@@ -108,48 +111,48 @@ public class MenuHandler : MonoBehaviour {
             spawner.RemoveAllCars();
     }
 
-	public void OnPidDrive()
-	{
-		if(PIDContoller != null)
-			PIDContoller.SetActive(true);
+    public void OnPidDrive()
+    {
+        if (PIDContoller != null)
+            PIDContoller.SetActive(true);
 
-		if(carJSControl != null)
-			carJSControl.SetActive(false);
+        if (carJSControl != null)
+            carJSControl.SetActive(false);
 
-		if(PIDControls != null)
-			PIDControls.SetActive(true);
+        if (PIDControls != null)
+            PIDControls.SetActive(true);
 
-		menuPanel.SetActive(false);
+        menuPanel.SetActive(false);
         stopPanel.SetActive(true);
         exitPanel.SetActive(false);
     }
 
-	public void OnManualDrive()
-	{
-		if(PIDContoller != null)
-			PIDContoller.SetActive(false);
+    public void OnManualDrive()
+    {
+        if (PIDContoller != null)
+            PIDContoller.SetActive(false);
 
-		if(carJSControl != null)
-			carJSControl.SetActive(true);
+        if (carJSControl != null)
+            carJSControl.SetActive(true);
 
-		if(PIDControls != null)
-			PIDControls.SetActive(false);
+        if (PIDControls != null)
+            PIDControls.SetActive(false);
 
-		menuPanel.SetActive(false);
+        menuPanel.SetActive(false);
         stopPanel.SetActive(true);
         exitPanel.SetActive(false);
     }
 
     public void OnNextTrack()
-	{
-		if(trainingManager != null)
-			trainingManager.OnMenuNextTrack();
+    {
+        if (trainingManager != null)
+            trainingManager.OnMenuNextTrack();
     }
 
     public void OnRegenTrack()
-	{
-		if(trainingManager != null)
-			trainingManager.OnMenuRegenTrack();
+    {
+        if (trainingManager != null)
+            trainingManager.OnMenuRegenTrack();
     }
 
     public void OnStop()
@@ -160,13 +163,13 @@ public class MenuHandler : MonoBehaviour {
         if (carJSControl != null)
             carJSControl.SetActive(false);
 
-		if(PIDControls != null)
-			PIDControls.SetActive(false);
+        if (PIDControls != null)
+            PIDControls.SetActive(false);
 
-        if(Logger != null)
-		    Logger.SetActive(false);
+        if (Logger != null)
+            Logger.SetActive(false);
 
-        if(NetworkSteering != null)    
+        if (NetworkSteering != null)
             NetworkSteering.SetActive(false);
 
         menuPanel.SetActive(true);

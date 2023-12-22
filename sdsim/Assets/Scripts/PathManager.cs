@@ -278,6 +278,7 @@ public class PathManager : MonoBehaviour
 		path = new CarPath();
 
 		Vector3 s = startPos.position;
+		Debug.Log(string.Format("Start pos is {0}", startPos.position));
 		float turn = 0f;
 		s.y = 0.5f;
 
@@ -311,6 +312,8 @@ public class PathManager : MonoBehaviour
 
 			s = s + span;
 		}
+		Debug.Log(string.Format("Generated track is {0}", startPos.position));
+
 	}
 
 	public bool SegmentCrossesPath(Vector3 posA, float rad)
