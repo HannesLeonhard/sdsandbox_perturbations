@@ -87,7 +87,7 @@ public class StatsDisplayer : MonoBehaviour
 
     string GetLogPath()
     {
-        if(GlobalState.log_path != "default")
+        if (GlobalState.log_path != "default")
             return GlobalState.log_path + "/";
 
         // Debug.Log("Application.dataPath: " + Application.dataPath);
@@ -240,12 +240,12 @@ public class StatsDisplayer : MonoBehaviour
             string hour = "" + scriptStartTime.Hour;
             string minute = "" + scriptStartTime.Minute;
 
-            if(scriptStartTime.Hour < 10)
+            if (scriptStartTime.Hour < 10)
             {
                 hour = "0" + hour;
             }
 
-            if(scriptStartTime.Minute < 10)
+            if (scriptStartTime.Minute < 10)
             {
                 minute = "0" + minute;
             }
@@ -255,7 +255,7 @@ public class StatsDisplayer : MonoBehaviour
             string filepath = Application.dataPath + "/Testing/" + filename + ".csv";
 
             string text = "Lap time,Max XTE,XTE avg,XTE var,Steer avg,Steer var,Speed avg,Speed var,Off track\n";
-            for(int i = 0; i < timesHistory.Count; i++)
+            for (int i = 0; i < timesHistory.Count; i++)
             {
                 float t = timesHistory[i];
                 float m = maxXteHistory[i];
@@ -267,7 +267,7 @@ public class StatsDisplayer : MonoBehaviour
                 float spv = speedVarHistory[i];
                 float c = offTrackHistory[i];
 
-                text += t + "," + m + "," + xa + "," + xv + "," + sta + "," + stv + "," + spa + "," + spv + "," + c +"\n";
+                text += t + "," + m + "," + xa + "," + xv + "," + sta + "," + stv + "," + spa + "," + spv + "," + c + "\n";
             }
 
             File.WriteAllText(filepath, text);
@@ -287,19 +287,20 @@ public class StatsDisplayer : MonoBehaviour
 
         bool areClose(double a, double b)
         {
-            if (Math.Abs(a - b) < epsilon) {
+            if (Math.Abs(a - b) < epsilon)
+            {
                 return true;
             };
 
             return false;
         }
 
-        if(car == null)
+        if (car == null)
         {
             return false;
         }
 
-        if(
+        if (
             areClose(car.transform.position.x, startingCarPosition.x) &&
             areClose(car.transform.position.z, startingCarPosition.z)
             )
@@ -314,11 +315,11 @@ public class StatsDisplayer : MonoBehaviour
 
     private void getUpdatedStats()
     {
-        if(car == null)
+        if (car == null)
         {
             Utilities.tryGetCar("DonkeyCar");
 
-            if(car == null) { return; }
+            if (car == null) { return; }
         }
 
         // Updating time
@@ -345,13 +346,15 @@ public class StatsDisplayer : MonoBehaviour
             // Updating XTE
             if (!pm.path.GetCrossTrackErr(car.GetTransform(), ref xte))
             {
-                
+
                 if (car.GetLastCollision() != null)
                 {
                     // Car crashed
                     lapCrashes += 1;
                     car.ClearLastCollision();
-                } else {
+                }
+                else
+                {
                     if (Utilities.carIsGoingForward(car))
                     {
                         // Lap finished, looping
@@ -380,7 +383,7 @@ public class StatsDisplayer : MonoBehaviour
         }
 
         // Updating max XTE
-        if(Math.Abs(xte) > maxXte)
+        if (Math.Abs(xte) > maxXte)
         {
             maxXte = Math.Abs(xte);
         }
@@ -443,7 +446,7 @@ public class StatsDisplayer : MonoBehaviour
 
     private void displayStats()
     {
-        lapLabel.text = lapLabel.text.Split(new string[] { ": " }, StringSplitOptions.None)[0] + ": " + lap;
+        /*lapLabel.text = lapLabel.text.Split(new string[] { ": " }, StringSplitOptions.None)[0] + ": " + lap;
         timeLabel.text = timeLabel.text.Split(new string[] { ": " }, StringSplitOptions.None)[0] + ": " + lapTime;
         outOfTrackLabel.text = outOfTrackLabel.text.Split(new string[] { ": " }, StringSplitOptions.None)[0] + ": " + offTrackEpisodeCounter;
         prevTimeLabel.text = prevTimeLabel.text.Split(new string[] { ": " }, StringSplitOptions.None)[0] + ": " + prevLapTime;
@@ -452,12 +455,12 @@ public class StatsDisplayer : MonoBehaviour
         xteLabel.text = xteLabel.text.Split(new string[] { ": " }, StringSplitOptions.None)[0] + ": " + xte;
         avgXteLabel.text = avgXteLabel.text.Split(new string[] { ": " }, StringSplitOptions.None)[0] + ": " + Math.Round(Utilities.getMean(lapXtes), 4);
         xteMaxLabel.text = xteMaxLabel.text.Split(new string[] { ": " }, StringSplitOptions.None)[0] + ": " + maxXte;
-        currWaypointLabel.text = currWaypointLabel.text.Split(new string[] { ": " }, StringSplitOptions.None)[0] + ": " + (currentWaypoint) + "/" + (pm.path.nodes.Count - 1);
+        currWaypointLabel.text = currWaypointLabel.text.Split(new string[] { ": " }, StringSplitOptions.None)[0] + ": " + (currentWaypoint) + "/" + (pm.path.nodes.Count - 1);*/
     }
 
     private void writePerFrameStats()
     {
-        string frameStats = frameId + "," + lap + "," + xte + "," + car.GetSteering() + "," + car.GetThrottle() + "," + car.GetVelocity().magnitude + "," + car.GetAccel().magnitude + "," + car.transform.position.x + "," + car.transform.position.z  + "," + isOffTrack;
+        string frameStats = frameId + "," + lap + "," + xte + "," + car.GetSteering() + "," + car.GetThrottle() + "," + car.GetVelocity().magnitude + "," + car.GetAccel().magnitude + "," + car.transform.position.x + "," + car.transform.position.z + "," + isOffTrack;
         File.AppendAllLines(frameLogPath, new string[] { frameStats });
         frameId += 1;
     }

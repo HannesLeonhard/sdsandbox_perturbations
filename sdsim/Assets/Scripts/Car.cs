@@ -2,7 +2,8 @@
 using System.Collections;
 
 
-public class Car : MonoBehaviour, ICar {
+public class Car : MonoBehaviour, ICar
+{
 
 	public WheelCollider[] wheelColliders;
 	public Transform[] wheelMeshes;
@@ -36,18 +37,18 @@ public class Car : MonoBehaviour, ICar {
 	//use this label to pull partial training samples from a run 
 	public string activity = "keep_lane";
 
-    public float maxSteer = 25.0f;
+	public float maxSteer = 25.0f;
 
 	//name of the last object we hit.
 	public Collision last_collision = null;
 	public string last_collision_name = "none";
 
 	// Use this for initialization
-	void Awake () 
+	void Awake()
 	{
 		rb = GetComponent<Rigidbody>();
 
-		if(rb && centrOfMass)
+		if (rb && centrOfMass)
 		{
 			rb.centerOfMass = centrOfMass.localPosition;
 		}
@@ -56,7 +57,7 @@ public class Car : MonoBehaviour, ICar {
 		requestSteering = 0f;
 
 		SavePosRot();
-    }
+	}
 
 	public void SavePosRot()
 	{
@@ -76,18 +77,18 @@ public class Car : MonoBehaviour, ICar {
 		//Debug.Log("request throttle: " + val);
 	}
 
-    public void SetMaxSteering(float val)
-    {
-        maxSteer = val;
+	public void SetMaxSteering(float val)
+	{
+		maxSteer = val;
 
-        PlayerPrefs.SetFloat("max_steer", maxSteer);
-        PlayerPrefs.Save();
-    }
+		PlayerPrefs.SetFloat("max_steer", maxSteer);
+		PlayerPrefs.Save();
+	}
 
-    public float GetMaxSteering()
-    {
-        return maxSteer;
-    }
+	public float GetMaxSteering()
+	{
+		return maxSteer;
+	}
 
 	public void RequestSteering(float val)
 	{
@@ -106,10 +107,10 @@ public class Car : MonoBehaviour, ICar {
 
 	IEnumerator KeepSetting(Vector3 pos, Quaternion rot, int numIter)
 	{
-		while(numIter > 0)
+		while (numIter > 0)
 		{
 			rb.isKinematic = true;
-			
+
 			yield return new WaitForFixedUpdate();
 
 			rb.position = pos;
@@ -153,10 +154,10 @@ public class Car : MonoBehaviour, ICar {
 		return acceleration;
 	}
 
-	public float GetOrient ()
+	public float GetOrient()
 	{
 		Vector3 dir = transform.forward;
-		return Mathf.Atan2( dir.z, dir.x);
+		return Mathf.Atan2(dir.z, dir.x);
 	}
 
 	public Transform GetTransform()
@@ -178,10 +179,10 @@ public class Car : MonoBehaviour, ICar {
 	{
 		// todo
 	}
-	
+
 	// Update is called once per frame
-	void Update () {
-	
+	void Update()
+	{
 		UpdateWheelPositions();
 	}
 
@@ -202,7 +203,7 @@ public class Car : MonoBehaviour, ICar {
 
 		float throttle = requestTorque * maxTorque;
 		float steerAngle = requestSteering;
-        float brake = requestBrake;
+		float brake = requestBrake;
 
 
 		//front two tires.
@@ -210,9 +211,9 @@ public class Car : MonoBehaviour, ICar {
 		wheelColliders[3].steerAngle = steerAngle;
 
 		//four wheel drive at the moment
-		foreach(WheelCollider wc in wheelColliders)
+		foreach (WheelCollider wc in wheelColliders)
 		{
-			if(rb.velocity.magnitude < maxSpeed)
+			if (rb.velocity.magnitude < maxSpeed)
 			{
 				wc.motorTorque = throttle;
 			}
@@ -239,7 +240,7 @@ public class Car : MonoBehaviour, ICar {
 		Quaternion rot;
 		Vector3 pos;
 
-		for(int i = 0; i < wheelColliders.Length; i++)
+		for (int i = 0; i < wheelColliders.Length; i++)
 		{
 			WheelCollider wc = wheelColliders[i];
 			Transform tm = wheelMeshes[i];
@@ -257,7 +258,8 @@ public class Car : MonoBehaviour, ICar {
 		return last_collision_name;
 	}
 
-	public Collision GetLastCollision() {
+	public Collision GetLastCollision()
+	{
 		return last_collision;
 	}
 
@@ -275,7 +277,7 @@ public class Car : MonoBehaviour, ICar {
 	}
 
 	void OnTriggerExit(Collider collider)
-    {
+	{
 		nrExitedTriggers += 1;
 	}
 }

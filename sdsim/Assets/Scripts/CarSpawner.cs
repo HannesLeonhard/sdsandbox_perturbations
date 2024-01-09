@@ -66,6 +66,7 @@ public class CarSpawner : MonoBehaviour {
 
     public void RemoveAllCars()
     {
+        Debug.Log("RemoveAllCars");
         foreach(GameObject car in cars)
         {
             GameObject.Destroy(car);

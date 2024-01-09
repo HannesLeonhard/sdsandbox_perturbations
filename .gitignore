@@ -16,3 +16,13 @@ sdsim/Library
 sdsim/Logs
 sdsim/log
 sdsim/Assets/Testing
+
+# all files from /Assets/Testing
+*Laps*.csv
+*Simulation*.csv
+
+# all build binaries
+*.exe
+*.x86
+*.x86_64
+*.app

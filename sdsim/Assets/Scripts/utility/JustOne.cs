@@ -20,6 +20,7 @@ public class JustOne : MonoBehaviour
                 objs.Add(obj);
             }
         }
+        Debug.Log("JustOne Awake: " + objs.Count + " " + label);
 
         foreach (JustOne obj in objs)
         {

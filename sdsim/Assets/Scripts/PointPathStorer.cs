@@ -18,8 +18,8 @@ public class PointPathStorer : MonoBehaviour
             text += '\n';
             //Debug.Log(text);
         }
-
-        System.IO.File.WriteAllText("Assets/Resources/LatestWaypoints.txt", text);
+        string path = Application.dataPath + "/Resources/LatestWaypoints.txt";
+        System.IO.File.WriteAllText(path, text);
         Debug.Log(wayPoints.Length + " Waypoints found and written to LatestWaypoints.txt");
     }
 }

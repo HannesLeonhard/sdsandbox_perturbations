@@ -17,6 +17,9 @@ public class SandboxServer : MonoBehaviour
     public GameObject clientTemplateObj = null;
     public Transform spawn_pt;
     public bool spawnCarswClients = true;
+    public bool autoStart = true;
+    public SceneLoader loader;
+
 
     public void CheckCommandLineConnectArgs()
     {
@@ -76,7 +79,7 @@ public class SandboxServer : MonoBehaviour
             go.transform.position = spawn_pt.position + UnityEngine.Random.insideUnitSphere * 2;
 
         tk.TcpClient client = go.GetComponent<tk.TcpClient>();
-
+        Debug.Log("client connected: " + client);
         InitClient(client);
 
         return client;
@@ -84,20 +87,46 @@ public class SandboxServer : MonoBehaviour
 
     private void InitClient(tk.TcpClient client)
     {
-        if (spawnCarswClients)
+        if (autoStart)
         {
-            CarSpawner spawner = GameObject.FindObjectOfType<CarSpawner>();
+            Debug.Log("auto starting client.");
+            // Instruct the scene loader to load the generated track scene.
+            SceneLoader loader = GameObject.FindObjectOfType<SceneLoader>();
 
+            loader.LoadGenerateRoadScene();
+            // use the menu handler to select OnUseNNNetworkSteering.
+            MenuHandler menuHandler = GameObject.FindObjectOfType<MenuHandler>();
+            if (menuHandler)
+                menuHandler.OnUseNNNetworkSteering();
+            else
+                Debug.Log("menu handler was null.");
+            Debug.Log("auto started client.");
+            autoStart = false;
+        }
+        else if (spawnCarswClients)
+        {
+            // active NN steering.
+            MenuHandler menuHandler = GameObject.FindObjectOfType<MenuHandler>();
+            if (menuHandler)
+                menuHandler.OnUseNNNetworkSteering();
+            else
+                Debug.LogError("menu handler was null.");
+            
+            Debug.Log("spawning car with client.");
+            CarSpawner spawner = GameObject.FindObjectOfType<CarSpawner>();
+            // We want to make sure that only one car exists in the game.
             if (spawner)
             {
                 if (_server.debug)
                     Debug.Log("spawning car.");
+                spawner.RemoveAllCars();
 
                 spawner.Spawn(client.gameObject.GetComponent<tk.JsonTcpClient>());
             }
         }
         else
         {
+            Debug.Log("not spawning car with client.");
             //we are in the front end.
             tk.TcpMenuHandler handler = GameObject.FindObjectOfType<TcpMenuHandler>();
 
@@ -126,7 +155,7 @@ public class SandboxServer : MonoBehaviour
             InitClient(client);
         }
 
-        if(GlobalState.bCreateCarWithoutNetworkClient && !bFrontEnd && clients.Count == 0)
+        if (GlobalState.bCreateCarWithoutNetworkClient && !bFrontEnd && clients.Count == 0)
         {
             CarSpawner spawner = GameObject.FindObjectOfType<CarSpawner>();
 
@@ -134,7 +163,7 @@ public class SandboxServer : MonoBehaviour
             {
                 if (_server.debug)
                     Debug.Log("spawning car.");
-
+                Debug.Log("spawning car without network client.");
                 spawner.Spawn(null);
             }
         }

@@ -79,7 +79,8 @@ namespace tk
             client.dispatcher.Register("regen_road", new tk.Delegates.OnMsgRecv(OnRegenRoad));
             client.dispatcher.Register("car_config", new tk.Delegates.OnMsgRecv(OnCarConfig));
             client.dispatcher.Register("cam_config", new tk.Delegates.OnMsgRecv(OnCamConfig));
-            
+            client.dispatcher.Register("disconnect", new tk.Delegates.OnMsgRecv(OnDisconnect));
+
             Debug.Log("Finished Car Handler init");
         }
 
@@ -99,10 +100,19 @@ namespace tk
         {
             if (client)
                 client.dispatcher.Reset();
+            Debug.Log("Destroyed Car Handler");
+        }
+
+        void OnDisconnect(JSONObject json)
+        {
+            OnExitSceneRecv(json);
+            Disconnect();
+            OnQuitApp(json);
         }
 
         void Disconnect()
         {
+            Debug.Log("Disconnecting");
             client.Disconnect();
         }
 
@@ -203,6 +213,7 @@ namespace tk
             //We get this callback in a worker thread, but need to make mainthread calls.
             //so use this handy utility dispatcher from
             // https://github.com/PimDeWitte/UnityMainThreadDispatcher
+            Debug.Log("Spawning new car in TcpCarHandler");
             UnityMainThreadDispatcher.Instance().Enqueue(SpawnNewCar(client));
         }
 
@@ -230,6 +241,7 @@ namespace tk
             {
                 wayPoints = wayPointsString.Split("@");
             }
+
 
 
             //We get this callback in a worker thread, but need to make mainthread calls.
@@ -371,7 +383,14 @@ namespace tk
 
         void OnQuitApp(JSONObject json)
         {
+            // This needs to be called from the main thread.
+            UnityMainThreadDispatcher.Instance().Enqueue(quitApp());
+        }
+
+        IEnumerator quitApp()
+        {
             Application.Quit();
+            yield return null;
         }
 
         // Update is called once per frame
