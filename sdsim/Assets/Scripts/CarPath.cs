@@ -60,8 +60,9 @@ public class CarPath
 
 	public bool GetCrossTrackErr(Vector3 pos, ref float err)
 	{
-		if(iActiveSpan >= nodes.Count - 2)
+		if(iActiveSpan >= nodes.Count - 2) {
 			return false;
+		}
 
 		PathNode a = nodes[iActiveSpan];
 		PathNode b = nodes[iActiveSpan + 1];

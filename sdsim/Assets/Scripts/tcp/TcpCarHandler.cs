@@ -148,12 +148,22 @@ namespace tk
                 float cte = 0.0f;
                 if (pm.path.GetCrossTrackErr(tm.position, ref cte))
                 {
+                    if (cte > 2.0f || cte < -2.0f) {
+                        json.AddField("done", true);
+                        Debug.Log("Cross track error is greater than 2, resetting active span");
+                    }
+                    else {
+                        json.AddField("done", false);
+                        Debug.Log("Cross track error is " + cte);
+                    }
                     json.AddField("cte", cte);
                 }
                 else
                 {
                     pm.path.ResetActiveSpan();
                     json.AddField("cte", 0.0f);
+                    json.AddField("done", true);
+                    Debug.Log("Resetting active span, cross track error set to 0");
                 }
                 json.AddField("maxSector", pm.path.getMaxWayPoints());
             }
